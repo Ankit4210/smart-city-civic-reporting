@@ -167,11 +167,11 @@ INSERT INTO `categories` (`id`, `name`, `code`, `icon`, `department`, `sla_hours
 
 -- Seed Users (Bcrypt hash for 'admin123' and 'citizen123')
 INSERT INTO `users` (`id`, `name`, `email`, `password`, `phone`, `role`, `civic_points`, `ward`) VALUES
-(1, 'Demo Municipal Admin', 'admin@example.test', '$2a$10$vI8aWBnW3fID.ZQ4/zo1e.uQx7Fzq52KjR0uL1y6K4L1d0n9H3G8G', '0000000001', 'admin', 500, 'Headquarters'),
-(2, 'Demo Ward Officer', 'officer@example.test', '$2a$10$vI8aWBnW3fID.ZQ4/zo1e.uQx7Fzq52KjR0uL1y6K4L1d0n9H3G8G', '0000000002', 'admin', 350, 'Ward 12 - Central'),
-(3, 'Demo Citizen One', 'citizen.one@example.test', '$2a$10$vI8aWBnW3fID.ZQ4/zo1e.uQx7Fzq52KjR0uL1y6K4L1d0n9H3G8G', '0000000003', 'citizen', 220, 'Ward 12 - Central'),
-(4, 'Demo Citizen Two', 'citizen.two@example.test', '$2a$10$vI8aWBnW3fID.ZQ4/zo1e.uQx7Fzq52KjR0uL1y6K4L1d0n9H3G8G', '0000000004', 'citizen', 180, 'Ward 7 - North'),
-(5, 'Demo Citizen Three', 'citizen.three@example.test', '$2a$10$vI8aWBnW3fID.ZQ4/zo1e.uQx7Fzq52KjR0uL1y6K4L1d0n9H3G8G', '0000000005', 'citizen', 110, 'Ward 4 - East');
+(1, 'Demo Municipal Admin', 'admin@example.test', '$2a$10$QL5ac0JWVNzIrmHXTIM02eK.1gutuUxMmTrTHUR.rQENy6P2t/vuC', '0000000001', 'admin', 500, 'Headquarters'),
+(2, 'Demo Ward Officer', 'officer@example.test', '$2a$10$QL5ac0JWVNzIrmHXTIM02eK.1gutuUxMmTrTHUR.rQENy6P2t/vuC', '0000000002', 'admin', 350, 'Ward 12 - Central'),
+(3, 'Demo Citizen One', 'citizen.one@example.test', '$2a$10$faWLc5Yw5LtTE5gdIqgH0evWroGywVppKZZ6EmQsDDSx.fCGEilVi', '0000000003', 'citizen', 220, 'Ward 12 - Central'),
+(4, 'Demo Citizen Two', 'citizen.two@example.test', '$2a$10$faWLc5Yw5LtTE5gdIqgH0evWroGywVppKZZ6EmQsDDSx.fCGEilVi', '0000000004', 'citizen', 180, 'Ward 7 - North'),
+(5, 'Demo Citizen Three', 'citizen.three@example.test', '$2a$10$faWLc5Yw5LtTE5gdIqgH0evWroGywVppKZZ6EmQsDDSx.fCGEilVi', '0000000005', 'citizen', 110, 'Ward 4 - East');
 
 -- Seed Reports
 INSERT INTO `reports` (`id`, `tracking_id`, `user_id`, `category_id`, `title`, `description`, `landmark`, `address`, `ward`, `latitude`, `longitude`, `before_photo`, `priority`, `status`, `upvotes`) VALUES

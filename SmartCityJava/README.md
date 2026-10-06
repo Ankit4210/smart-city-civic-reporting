@@ -22,6 +22,18 @@ The application creates its tables and seeds issue categories at startup. If the
 
 These credentials are for local demonstrations only. Change them before using a shared or public deployment. Do not run the root `database.sql` script against existing data: that script drops and recreates its tables.
 
+Login works only while the Java/Tomcat API and MySQL database are running. GitHub Pages does not host the API. If using the repository's SQL sample data, the demo hashes are configured for the passwords listed above; local application startup also repairs the previously published placeholder hash without changing users' own passwords.
+
+## GitHub Pages with an online backend
+
+GitHub Pages cannot run this Java servlet API or MySQL. To use real registration and login from Pages, deploy the backend and MySQL separately (the repository includes a Railway-ready `Dockerfile` and `railway.json`), then set `SMARTCITY_API_BASE_URL` in both `js/api-config.js` and `public/js/api-config.js` to the backend's public origin without `/api`.
+
+Set `SMARTCITY_CORS_ALLOWED_ORIGINS` on the backend to the exact Pages origin, for example `https://ankit4210.github.io`. Railway MySQL services expose `MYSQLHOST`, `MYSQLPORT`, `MYSQLDATABASE`, `MYSQLUSER`, and `MYSQLPASSWORD`; the backend uses those to construct its JDBC connection when `SMARTCITY_DB_URL` is unset.
+
+For a public deployment, keep `SMARTCITY_ENV=production`, configure `SMARTCITY_ADMIN_EMAIL`, a private `SMARTCITY_ADMIN_PASSWORD` of at least 16 characters, and a private `SMARTCITY_AUTH_SECRET` of at least 32 characters. Production mode disables the local demo accounts and seeds the configured administrator only when the users table is empty. Keep every secret in the hosting provider's environment-variable settings, never in the frontend or repository.
+
+Uploaded photos are stored in Tomcat's deployed web application directory. Configure persistent storage for `/usr/local/tomcat/webapps/ROOT/uploads` on the hosting provider if uploaded evidence must survive container replacement.
+
 Configure the connection before starting Tomcat. Environment variables override the defaults in `src/main/webapp/WEB-INF/web.xml`:
 
 ```powershell

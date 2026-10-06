@@ -1,0 +1,15 @@
+.git
+.github
+.vscode
+my-project
+node_modules
+SmartCityJava/target
+*.db
+*.sqlite
+*.sqlite3
+*.log
+.env
+.env.*
+!*.example
+uploads/*
+!uploads/sample_*.jpg

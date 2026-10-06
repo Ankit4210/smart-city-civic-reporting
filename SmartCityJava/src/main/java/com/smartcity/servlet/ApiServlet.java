@@ -52,6 +52,10 @@ public class ApiServlet extends HttpServlet {
         response.setContentType("application/json");
         response.setHeader("Cache-Control", "no-store");
 
+        if (!configureCors(request, response)) {
+            return;
+        }
+
         try {
             route(request, response);
         } catch (PhotoTooLargeException e) {
@@ -67,6 +71,34 @@ public class ApiServlet extends HttpServlet {
             getServletContext().log("Civic reporting database request failed", e);
             sendError(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "The request could not be completed.");
         }
+    }
+
+    private boolean configureCors(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String origin = request.getHeader("Origin");
+        if (origin == null || origin.isBlank()) {
+            return true;
+        }
+
+        String configuredOrigins = System.getenv("SMARTCITY_CORS_ALLOWED_ORIGINS");
+        boolean originAllowed = configuredOrigins != null
+                && java.util.Arrays.stream(configuredOrigins.split(","))
+                        .map(String::trim)
+                        .anyMatch(origin::equals);
+        if (!originAllowed) {
+            sendError(response, HttpServletResponse.SC_FORBIDDEN, "This website is not allowed to access the API.");
+            return false;
+        }
+
+        response.setHeader("Access-Control-Allow-Origin", origin);
+        response.setHeader("Vary", "Origin");
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            response.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, OPTIONS");
+            response.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type");
+            response.setHeader("Access-Control-Max-Age", "600");
+            response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+            return false;
+        }
+        return true;
     }
 
     private void route(HttpServletRequest request, HttpServletResponse response)

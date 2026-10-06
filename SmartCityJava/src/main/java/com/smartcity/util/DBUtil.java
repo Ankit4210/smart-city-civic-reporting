@@ -22,18 +22,32 @@ public class DBUtil {
         String configuredUrl = System.getenv("SMARTCITY_DB_URL");
         String configuredUser = System.getenv("SMARTCITY_DB_USER");
         String configuredPassword = System.getenv("SMARTCITY_DB_PASSWORD");
+        String mysqlHost = System.getenv("MYSQLHOST");
+        String mysqlPort = System.getenv("MYSQLPORT");
+        String mysqlDatabase = System.getenv("MYSQLDATABASE");
+        String mysqlUser = System.getenv("MYSQLUSER");
+        String mysqlPassword = System.getenv("MYSQLPASSWORD");
         if (configuredUrl != null && !configuredUrl.isBlank()) {
             DB_URL = configuredUrl;
+        } else if (mysqlHost != null && !mysqlHost.isBlank()
+                && mysqlPort != null && !mysqlPort.isBlank()
+                && mysqlDatabase != null && !mysqlDatabase.isBlank()) {
+            DB_URL = "jdbc:mysql://" + mysqlHost + ":" + mysqlPort + "/" + mysqlDatabase
+                    + "?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true";
         } else if (url != null && !url.isBlank()) {
             DB_URL = url;
         }
         if (configuredUser != null && !configuredUser.isBlank()) {
             DB_USER = configuredUser;
+        } else if (mysqlUser != null && !mysqlUser.isBlank()) {
+            DB_USER = mysqlUser;
         } else if (user != null && !user.isBlank()) {
             DB_USER = user;
         }
         if (configuredPassword != null) {
             DB_PASSWORD = configuredPassword;
+        } else if (mysqlPassword != null) {
+            DB_PASSWORD = mysqlPassword;
         } else if (password != null) {
             DB_PASSWORD = password;
         }

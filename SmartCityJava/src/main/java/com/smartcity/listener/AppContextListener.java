@@ -205,9 +205,14 @@ public class AppContextListener implements ServletContextListener {
             rs = stmt.executeQuery("SELECT COUNT(*) as cnt FROM users");
             rs.next();
             if (rs.getInt("cnt") == 0) {
-                seedUsers(conn);
+                if ("production".equalsIgnoreCase(System.getenv("SMARTCITY_ENV"))) {
+                    seedProductionAdmin(conn);
+                } else {
+                    seedUsers(conn);
+                }
             }
             rs.close();
+            repairLegacyDemoPasswords(conn);
 
         } finally {
             if (stmt != null) stmt.close();
@@ -287,5 +292,60 @@ public class AppContextListener implements ServletContextListener {
 
         ps.close();
         System.out.println("[DB] Demo admin and citizen accounts seeded (see project README).");
+    }
+
+    private void seedProductionAdmin(Connection conn) throws Exception {
+        String email = System.getenv("SMARTCITY_ADMIN_EMAIL");
+        String password = System.getenv("SMARTCITY_ADMIN_PASSWORD");
+        if (email == null || email.isBlank() || password == null || password.length() < 16) {
+            System.out.println("[DB] Production mode: demo accounts disabled. Configure "
+                    + "SMARTCITY_ADMIN_EMAIL and a 16+ character SMARTCITY_ADMIN_PASSWORD to seed an admin.");
+            return;
+        }
+
+        String passwordHash = org.mindrot.jbcrypt.BCrypt.hashpw(
+                password, org.mindrot.jbcrypt.BCrypt.gensalt(12));
+        try (var ps = conn.prepareStatement(
+                "INSERT INTO users (name, email, password, phone, role, civic_points, ward) "
+                        + "VALUES (?, ?, ?, ?, ?, ?, ?)")) {
+            ps.setString(1, "System Administrator");
+            ps.setString(2, email);
+            ps.setString(3, passwordHash);
+            ps.setNull(4, java.sql.Types.VARCHAR);
+            ps.setString(5, "admin");
+            ps.setInt(6, 0);
+            ps.setString(7, "Headquarters");
+            ps.executeUpdate();
+        }
+        System.out.println("[DB] Production administrator account initialized.");
+    }
+
+    private void repairLegacyDemoPasswords(Connection conn) throws Exception {
+        if ("production".equalsIgnoreCase(System.getenv("SMARTCITY_ENV"))) {
+            return;
+        }
+
+        String legacyHash = "$2a$10$vI8aWBnW3fID.ZQ4/zo1e.uQx7Fzq52KjR0uL1y6K4L1d0n9H3G8G";
+        String[][] demoAccounts = {
+            {"admin@example.test", "admin123"},
+            {"officer@example.test", "admin123"},
+            {"citizen.one@example.test", "citizen123"},
+            {"citizen.two@example.test", "citizen123"},
+            {"citizen.three@example.test", "citizen123"}
+        };
+        boolean repaired = false;
+        try (var ps = conn.prepareStatement(
+                "UPDATE users SET password = ? WHERE email = ? AND password = ?")) {
+            for (String[] account : demoAccounts) {
+                ps.setString(1, org.mindrot.jbcrypt.BCrypt.hashpw(
+                        account[1], org.mindrot.jbcrypt.BCrypt.gensalt(10)));
+                ps.setString(2, account[0]);
+                ps.setString(3, legacyHash);
+                repaired |= ps.executeUpdate() > 0;
+            }
+        }
+        if (repaired) {
+            System.out.println("[DB] Repaired outdated local demo-account password hashes.");
+        }
     }
 }

@@ -27,14 +27,21 @@ const APP_CONTEXT_PATH = (() => {
   const firstSegment = window.location.pathname.split('/').filter(Boolean)[0] || '';
   return firstSegment && !firstSegment.includes('.') ? `/${firstSegment}` : '';
 })();
+const CONFIGURED_API_BASE_URL = (window.SMARTCITY_API_BASE_URL || '').trim().replace(/\/+$/, '');
 
 function apiUrl(path) {
+  if (CONFIGURED_API_BASE_URL) {
+    return `${CONFIGURED_API_BASE_URL}/api${path}`;
+  }
   return `${APP_CONTEXT_PATH}/api${path}`;
 }
 
 function assetUrl(path) {
   if (!path) return '';
   if (/^(data:|https?:\/\/)/i.test(path)) return path;
+  if (CONFIGURED_API_BASE_URL) {
+    return `${CONFIGURED_API_BASE_URL}/${path.replace(/^\/+/, '')}`;
+  }
   return `${APP_CONTEXT_PATH}/${path.replace(/^\/+/, '')}`;
 }
 
@@ -50,7 +57,11 @@ async function requestApi(path, options = {}) {
   try {
     data = await response.json();
   } catch {
-    throw new Error(`The server returned an invalid response (${response.status}).`);
+    const contentType = response.headers.get('content-type') || 'unknown content type';
+    throw new Error(
+      `The API returned a non-JSON response (${response.status}, ${contentType}). `
+      + 'If this site is on GitHub Pages, deploy the Java backend and set SMARTCITY_API_BASE_URL in js/api-config.js.'
+    );
   }
   setBackendStatus(true);
   if (!response.ok || !data || data.success !== true) {
