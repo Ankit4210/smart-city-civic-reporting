@@ -1,0 +1,36 @@
+package com.smartcity.filter;
+
+import jakarta.servlet.*;
+import jakarta.servlet.http.*;
+import java.io.IOException;
+
+/**
+ * Authentication Filter
+ * Protects citizen-only routes by checking session for logged-in user.
+ */
+public class AuthFilter implements Filter {
+
+    @Override
+    public void init(FilterConfig filterConfig) throws ServletException {}
+
+    @Override
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+            throws IOException, ServletException {
+
+        HttpServletRequest httpRequest = (HttpServletRequest) request;
+        HttpServletResponse httpResponse = (HttpServletResponse) response;
+
+        HttpSession session = httpRequest.getSession(false);
+
+        if (session == null || session.getAttribute("user") == null) {
+            httpRequest.setAttribute("errorMsg", "Please login to access this page.");
+            httpResponse.sendRedirect(httpRequest.getContextPath() + "/login.jsp?error=Please+login+first");
+            return;
+        }
+
+        chain.doFilter(request, response);
+    }
+
+    @Override
+    public void destroy() {}
+}

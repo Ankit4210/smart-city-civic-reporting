@@ -1,0 +1,11 @@
+node_modules/
+SmartCityJava/target/
+*.log
+.DS_Store
+Thumbs.db
+.env
+.env.*
+!.env.example
+*.db
+*.sqlite
+*.sqlite3
